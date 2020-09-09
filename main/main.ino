@@ -48,17 +48,13 @@ void setup() {
 
 void loop() {
   byte currentTime[4];
-  getTime(currentTime);
+  setTime(currentTime);
 
   for (int n = 0; n < 4; n++) {
-    setLED(n);
+    setNum(n, currentTime[n]);
     if (n == 1) {
-      setNum(currentTime[n], true);
+      setDot(currentTime[n]);
     }
-    else {
-      setNum(currentTime[n], false);
-    }
-
     delay(1);
   }
 }
@@ -68,12 +64,9 @@ void regInit() {
   DDRB = B11111111; //Set IO output
 }
 
-void setLED(byte leds) {
+void setNum(byte leds, byte n) {
   PORTB |= B00111100; //Clear LED
   PORTB &= ~(B00000100 << leds); //Set LED
-}
-
-void setNum(byte n) {
   //LED bits 0~7 equals PD2~7 + PB0~1
   PORTD &= B00000011; //clear
   PORTD |= (numbers[n] & B00111111) << 2; //set PD2~7
@@ -81,15 +74,15 @@ void setNum(byte n) {
   PORTB |= (numbers[n] & ~B00111111) >> 6; //set PB0~1
 }
 
-void setNum(byte n, bool t) {
+void setDot(byte n) {
   //LED bits 0~7 equals PD2~7 + PB0~1
   PORTD &= B00000011; //clear
-  PORTD |= (numbers[n] | (t * dot) & B00111111) << 2; //set PD2~7
+  PORTD |= (numbers[n] | dot & B00111111) << 2; //set PD2~7
   PORTB &= ~B00000011; //clear
-  PORTB |= (numbers[n] | (t * dot) & ~B00111111) >> 6; //set PB0~1
+  PORTB |= (numbers[n] | dot & ~B00111111) >> 6; //set PB0~1
 }
 
-void getTime(byte *data) {
+void setTime(byte *data) {
   //Get the current time according to the RTC model.
   DateTime now = rtc.now();
 
